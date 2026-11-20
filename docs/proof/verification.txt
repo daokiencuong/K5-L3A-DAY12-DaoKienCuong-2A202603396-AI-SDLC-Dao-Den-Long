@@ -1,0 +1,2 @@
+PASS: build syntax and contract tuning sync; scenario win with pulse/deposit/light; mote pickup; shade hit; invalid JSON exits 2; deterministic output byte-identical.
+Win trace: tick 1 pulse S1 stunned; tick 3 deposit 3 into L1, L1 lit, all_lit; end tick 3, score 489.
