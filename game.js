@@ -66,7 +66,8 @@ export function startGame(onUpdate, {night=1, seed=12026}={}) {
     x.fillStyle = g; x.fillRect(0,0,128,128);
     return new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
   }
-  const moteHalo = glowSprite('#82eaff'), fireHalo = glowSprite('#ffc366'), shadeHalo = glowSprite('#9066ce');
+  const moteHalo = glowSprite('#82eaff'), fireHalo = glowSprite('#ffc366'), shadeHalo = glowSprite('#7A3CFF'),shadeHaloBlue=glowSprite('#00B3FF');
+  const colorBlindEnabled=()=>{try{return !!JSON.parse(localStorage.getItem('lantern-settings')||'{}').colorBlind}catch{return false}};
 
   // A round garden island floating over a softly lit cloud sea.
   const sea = addMesh(new THREE.PlaneGeometry(260,260), mats.water);
@@ -104,7 +105,10 @@ export function startGame(onUpdate, {night=1, seed=12026}={}) {
     const cap=addMesh(new THREE.ConeGeometry(.62,.43,8),mats.wood,group);cap.position.y=3.15;
     const aura=new THREE.Sprite(fireHalo);aura.scale.set(8,8,1);aura.position.y=2.45;group.add(aura);aura.visible=false;
     const light=new THREE.PointLight('#ffbf60',0,11,2);light.position.y=2.5;group.add(light);
-    lanternMeshes.push({group,basket,core,aura,light,lantern});
+    const fuelBack=addMesh(new THREE.BoxGeometry(.15,1.3,.08),mats.iron,group,false,false);fuelBack.position.set(.92,2.75,0);
+    const fuelBar=addMesh(new THREE.BoxGeometry(.09,1.2,.1),material('#ffcf70',.35,0,{emissive:'#ff9d30',emissiveIntensity:1.4}),group,false,false);fuelBar.position.set(.92,2.15,0);fuelBar.visible=false;
+    const tearMaterial=material('#171b20',.95,0);const tearA=addMesh(new THREE.BoxGeometry(.68,.07,.08),tearMaterial,group,false,false),tearB=addMesh(new THREE.BoxGeometry(.07,.62,.08),tearMaterial,group,false,false);tearA.position.set(0,2.55,.38);tearA.rotation.z=.58;tearB.position.set(0,2.55,.39);tearB.rotation.z=-.52;
+    lanternMeshes.push({group,basket,core,aura,light,fuelBack,fuelBar,tearA,tearB,lantern});
   }
 
   const playerRoot=new THREE.Group();scene.add(playerRoot);
@@ -128,9 +132,9 @@ export function startGame(onUpdate, {night=1, seed=12026}={}) {
   function addShade(item){
     const group=new THREE.Group();scene.add(group);const body=addMesh(new THREE.SphereGeometry(.6,16,12),mats.shade,group);body.scale.set(.9,1.05,.78);
     const tail=addMesh(new THREE.ConeGeometry(.35,.7,9),mats.shade,group);tail.position.set(0,-.68,-.08);tail.rotation.x=Math.PI;
-    const eyes=material('#dfb8ff',.3,0,{emissive:'#bb81f2',emissiveIntensity:1.6});
+    const eyeColor=colorBlindEnabled()?'#00B3FF':'#7A3CFF';const eyes=material(eyeColor,.3,0,{emissive:eyeColor,emissiveIntensity:1.6});
     for(const x of [-.19,.19]){const eye=addMesh(new THREE.SphereGeometry(.055,8,8),eyes,group,false,false);eye.position.set(x,.12,.5)}
-    const aura=new THREE.Sprite(shadeHalo);aura.scale.set(3.6,3.6,1);group.add(aura);shadeMeshes.set(item.id,{root:group,body});
+    const aura=new THREE.Sprite(colorBlindEnabled()?shadeHaloBlue:shadeHalo);aura.scale.set(3.6,3.6,1);group.add(aura);shadeMeshes.set(item.id,{root:group,body,eyes,aura});
   }
   function addDrifter(item){const group=new THREE.Group();scene.add(group);const body=addMesh(new THREE.CapsuleGeometry(.22,.9,4,8),mats.drifter,group);body.rotation.z=Math.PI/2;const tail=addMesh(new THREE.ConeGeometry(.2,.55,7),mats.drifter,group);tail.position.x=-.62;tail.rotation.z=-Math.PI/2;const halo=new THREE.Sprite(moteHalo);halo.scale.set(2.4,2.4,1);group.add(halo);drifterMeshes.set(item.id,{root:group});}
   function addCharm(item){const group=new THREE.Group();group.position.set(item.pos[0],item.pos[1]+.8,item.pos[2]);scene.add(group);const leaf=addMesh(new THREE.OctahedronGeometry(.38,0),mats.charm,group,false,false);leaf.scale.set(.7,1.2,.25);const vein=addMesh(new THREE.BoxGeometry(.035,.7,.04),mats.gold,group,false,false);vein.rotation.z=-.28;const halo=new THREE.Sprite(fireHalo);halo.scale.set(2.5,2.5,1);group.add(halo);charmMeshes.push({item,group,leaf});}
@@ -139,11 +143,11 @@ export function startGame(onUpdate, {night=1, seed=12026}={}) {
 
   function hudState(){return{
     score:sim.score,timeLeft:sim.timeLeft,flames:sim.player.flames,carried:sim.player.carried,
-    lit:sim.lanterns.filter(x=>x.lit).length,cooldown:sim.player.pulse_cd_ticks/60,night:sim.night,wind:sim.wind,
+    lit:sim.lanterns.filter(x=>x.lit).length,cooldown:sim.player.pulse_cd_ticks/60,night:sim.night,wind:sim.wind,capacity:sim.capacity,colorBlind:colorBlindEnabled(),
     shades:sim.shades.map(x=>({id:x.id,state:x.state,pos:[...x.pos]})),
-    lanterns:sim.lanterns.map(x=>({id:x.id,lit:x.lit,pos:[...x.pos]})),
+    lanterns:sim.lanterns.map(x=>({id:x.id,lit:x.lit,fuel:x.lit?Number((x.fuel_units/60).toFixed(1)):0,ever_lit:x.ever_lit,relit_count:x.relit_count,pos:[...x.pos]})),
     player:[...sim.player.pos],toast:toastText,
-    nearLantern:sim.lanterns.some(l=>!l.lit&&Math.hypot(l.pos[0]-sim.player.pos[0],l.pos[2]-sim.player.pos[2])<=TUNING.interact_radius),
+    nearLantern:sim.lanterns.some(l=>(!l.lit||l.fuel_units<TUNING.fuel_max*60)&&Math.hypot(l.pos[0]-sim.player.pos[0],l.pos[2]-sim.player.pos[2])<=TUNING.interact_radius),
     ...(()=>{const target=sim.lanterns.filter(l=>!l.lit).sort((a,b)=>Math.hypot(a.pos[0]-sim.player.pos[0],a.pos[2]-sim.player.pos[2])-Math.hypot(b.pos[0]-sim.player.pos[0],b.pos[2]-sim.player.pos[2]))[0];if(!target)return {offscreenAngle:null,targetId:null};const dx=target.pos[0]-sim.player.pos[0],dz=target.pos[2]-sim.player.pos[2],forward=dx*Math.sin(yaw)+dz*Math.cos(yaw),right=-dx*Math.cos(yaw)+dz*Math.sin(yaw),outside=forward<=0||Math.abs(right)>forward*Math.tan(Math.PI*24/180)*(innerWidth/innerHeight);return {offscreenAngle:outside?Math.atan2(right,forward)*180/Math.PI:null,targetId:target.id};})(),
     charms:sim.charms,drifters:sim.drifters,dashCooldown:sim.player.dash_cd_ticks/60,charm:sim.player.charm_ticks/60,
     phase:sim.state,paused:sim.state==='paused',
@@ -155,7 +159,9 @@ export function startGame(onUpdate, {night=1, seed=12026}={}) {
     let changed=false;
     for(const event of sim.events){
       if(event.name==='mote_picked'){showToast('Đom đóm thu thập được');changed=true}
-      if(event.name==='lantern_lit'){showToast(`${event.data.lantern_id} đã bừng sáng · +200`);changed=true}
+      if(event.name==='lantern_lit'){showToast(`${event.data.lantern_id} ${event.data.relight?'đã thắp lại':'đã bừng sáng'} · +${event.data.relight?40:100}`);changed=true}
+      if(event.name==='refuel'){showToast(`${event.data.lantern_id} được châm thêm ${event.data.amount.toFixed(1)} dầu`);changed=true}
+      if(event.name==='lantern_out'){showToast(`${event.data.lantern_id} đã cạn dầu`);changed=true}
       if(event.name==='player_hit'){showToast('Bóng Mực chạm phải Mây!');changed=true}
       if(event.name==='pulse'&&event.data.stunned_ids.length){showToast('Ánh sáng xua Bóng Mực!');changed=true}
       if(event.name==='shade_spawned'){const shade=sim.shades.find(x=>x.id===event.data.id);if(shade)addShade(shade)}
@@ -201,10 +207,10 @@ export function startGame(onUpdate, {night=1, seed=12026}={}) {
     playerRoot.position.set(sim.player.pos[0],sim.player.pos[1],sim.player.pos[2]);
     environment.intensity=.15+.55*(sim.lanterns.filter(x=>x.lit).length/Math.max(1,sim.lanterns.length));
     playerRoot.rotation.y=yaw;playerRoot.scale.setScalar(sim.player.invuln_ticks>0&&Math.floor(elapsed*14)%2===0?.72:1);
-    for(const item of lanternMeshes){const active=item.lantern.lit;item.basket.material=active?mats.flame:mats.unlit;item.core.material=active?mats.flame:mats.unlit;item.aura.visible=active;item.light.intensity=active?5.5:0;item.group.scale.setScalar(1+Math.sin(elapsed*2+item.lantern.pos[0])*.012)}
+    for(const item of lanternMeshes){const l=item.lantern,active=l.lit,low=active&&l.fuel_units<TUNING.low_fuel_threshold*60,blink=low&&Math.floor(elapsed*2)%2===1,visible=active&&!blink;item.basket.material=visible?mats.flame:mats.unlit;item.core.material=visible?mats.flame:mats.unlit;item.aura.visible=visible;item.light.intensity=visible?5.5:0;item.group.scale.set(1,active?1:.8,1);item.fuelBack.visible=active;item.fuelBar.visible=visible;const fill=active?l.fuel_units/(TUNING.fuel_max*60):0;item.fuelBar.scale.y=Math.max(.001,fill);item.fuelBar.position.y=2.15+.6*fill;item.fuelBar.material.color.set(colorBlindEnabled()?'#00b3ff':low?'#ff5a5f':'#ffcf70');item.tearA.visible=item.tearB.visible=!active}
     for(const mote of sim.motes)if(!moteMeshes.has(mote.id))addMote(mote);
     for(const [id,item]of moteMeshes){const mote=sim.motes.find(x=>x.id===id);if(!mote){scene.remove(item.root);moteMeshes.delete(id);continue}item.root.position.set(mote.pos[0],mote.pos[1]+.9+Math.sin(elapsed*2+id.length)*.18,mote.pos[2]);item.root.rotation.y=elapsed*.7}
-    for(const [id,item]of shadeMeshes){const shade=sim.shades.find(x=>x.id===id);if(!shade){scene.remove(item.root);shadeMeshes.delete(id);continue}item.root.position.set(shade.pos[0],.7+Math.sin(elapsed*3+shade.pos[0])*.13,shade.pos[2]);item.root.rotation.y=Math.atan2(sim.player.pos[0]-shade.pos[0],sim.player.pos[2]-shade.pos[2]);item.body.material=shade.state==='stunned'?mats.shadeGlow:mats.shade}
+    for(const [id,item]of shadeMeshes){const shade=sim.shades.find(x=>x.id===id);if(!shade){scene.remove(item.root);shadeMeshes.delete(id);continue}item.root.position.set(shade.pos[0],shade.pos[1]+.7+Math.sin(elapsed*3+shade.pos[0])*.13,shade.pos[2]);item.root.rotation.y=Math.atan2(sim.player.pos[0]-shade.pos[0],sim.player.pos[2]-shade.pos[2]);const cb=colorBlindEnabled(),glow=cb?'#00b3ff':'#7A3CFF';item.eyes.color.set(glow);item.eyes.emissive.set(glow);item.aura.material=cb?shadeHaloBlue:shadeHalo;item.body.material=shade.state==='stunned'?mats.shadeGlow:mats.shade}
     for(const d of sim.drifters)if(!drifterMeshes.has(d.id))addDrifter(d);
     for(const[id,item]of drifterMeshes){const d=sim.drifters.find(x=>x.id===id);if(!d){scene.remove(item.root);drifterMeshes.delete(id);continue}item.root.position.set(d.pos[0],d.pos[1]+.8+Math.sin(elapsed*4)*.16,d.pos[2]);item.root.rotation.y=Math.atan2(sim.player.pos[0]-d.pos[0],sim.player.pos[2]-d.pos[2]);item.root.scale.setScalar(d.state==='flee'?.82:1)}
     for(const c of charmMeshes){c.group.visible=c.item.available;c.group.rotation.y=elapsed*.65;c.group.position.y=c.item.pos[1]+.8+Math.sin(elapsed*2.4)*.2;}

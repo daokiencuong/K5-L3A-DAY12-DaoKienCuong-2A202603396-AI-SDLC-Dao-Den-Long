@@ -9,12 +9,12 @@ assert.equal(fresh(1).lanterns.length,5);assert.equal(fresh(2).lanterns.length,6
 assert.equal(fresh(1).motes.length,24);assert.equal(fresh(2).motes.length,24);assert.equal(fresh(3).motes.length,30);
 // WASD axes follow the camera basis consistently at zero and quarter-turn yaw.
 for(const [move,yaw,axis,sign] of [[[0,1],0,2,1],[[0,-1],0,2,-1],[[1,0],0,0,1],[[-1,0],0,0,-1],[[0,1],90,0,1]]){const q=fresh(1,{motes:[],shades:[],random_shades:false});q.step({move,cam_yaw_deg:yaw});assert.equal(Math.sign(q.player.pos[axis]),sign);}
-// Deposits award points only at the lantern; state/event schemas stay v1.1.
-let s=fresh(1,{player:{pos:[0,0,25],carried:10},motes:[],shades:[]});s.step({interact:true});assert.equal(s.score,200);assert.equal(s.player.carried,0);assert(event(s,'lantern_lit'));
+// Phase 3 replaces Phase 2 deposit scoring: 5 per mote plus first-light 100.
+let s=fresh(1,{player:{pos:[0,0,25],carried:10},motes:[],shades:[]});s.step({interact:true});assert.equal(s.score,150);assert.equal(s.player.carried,0);assert(event(s,'lantern_lit'));
 // Pulse scores every hit, including a shade already stunned.
 s=fresh(1,{player:{pos:[0,0,0],carried:2},motes:[],shades:[{id:'S1',pos:[2,0,0],state:'stunned',state_ticks_left:80}]});s.step({pulse:true});assert.equal(s.score,5);assert.equal(s.player.pulse_cd_ticks,240);
-// The victory bonus floors remaining seconds and multiplies remaining flames.
-s=fresh(1,{time_left_s:12.5,player:{flames:2},lanterns:[{id:'L1',pos:[0,0,0],lit:true}],motes:[],shades:[]});s.step();assert.equal(s.state,'won');assert.equal(s.score,124);
+// Phase 3 removes the Phase 2 all-lanterns early-win rule; victory waits for dawn.
+s=fresh(1,{time_left_s:12.5,player:{flames:2},lanterns:[{id:'L1',pos:[0,0,0],lit:true}],motes:[],shades:[]});s.step();assert.equal(s.state,'playing');assert.equal(s.score,0);
 // Pause increments wall tick only; simulation timers and clocks remain frozen.
 s=fresh(1,{player:{invuln_ticks:30},motes:[],shades:[]});s.step({pause:true});assert.equal(s.state,'paused');assert.equal(s.tick,1);assert.equal(s.sim_tick,0);assert.equal(s.player.invuln_ticks,30);s.step({pause:false});s.step({pause:true});assert.equal(s.state,'playing');assert.equal(s.sim_tick,1);
 // Dash and charm pick-up/refresh behavior.

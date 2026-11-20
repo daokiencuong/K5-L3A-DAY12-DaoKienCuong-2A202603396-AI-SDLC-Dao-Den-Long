@@ -1,7 +1,7 @@
 {
     "name":  "dao-den-long",
     "private":  true,
-    "version":  "1.1.0",
+  "version":  "1.2.0",
     "type":  "module",
     "engines":  {
                     "node":  "\u003e=20.19.0"
@@ -9,7 +9,7 @@
     "scripts":  {
                     "dev":  "vite --host 0.0.0.0",
                     "build":  "vite build",
-                    "verify":  "node scripts/verify_phase2.js \u0026\u0026 node scripts/verify_phase1_regression.js",
+                    "verify":  "node scripts/verify_phase3.js \u0026\u0026 node scripts/verify_phase2.js \u0026\u0026 node scripts/verify_phase1_regression.js",
                     "headless":  "node src/headless.js"
                 },
     "dependencies":  {

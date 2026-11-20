@@ -1,0 +1,18 @@
+Phase 3 verification evidence (contract 1.2)
+Date: 2026-11-20
+
+Automated contract suites
+- node scripts/verify_phase3.js: PASS
+- node scripts/verify_phase2.js: PASS (unreplaced Phase 2 behaviors; explicitly superseded scoring/early-win assertions revised)
+- node scripts/verify_phase1_regression.js: PASS
+
+Production build
+- node node_modules/vite/bin/vite.js build: PASS (Vite 7.3.8; React + Three.js)
+- Vite reports the minified JavaScript chunk is above its 500 kB advisory threshold (766.67 kB, 210.30 kB gzip). Build completes successfully.
+
+Headless full-night run
+- Command: node src/headless.js --seed 42 --night 3 --ticks 18000 --snapshot-every 1800 --scenario docs/proof/phase3-perf-scenario.json --out docs/proof/phase3-night3.jsonl
+- Result: exactly 18,000 simulation ticks; state=lost; reason=dawn; score=0. This scenario intentionally has no lit lanterns, so it reaches dawn and loses below the 5-of-7 threshold.
+- Trace: docs/proof/phase3-night3.jsonl
+
+The Phase 3 suite also verifies exact fuel tick units, burnout, no interaction on a full lamp, eligible-lamp tie-breaking, refuel and relight scores, cumulative Shade drain, low-fuel safety boundary and recoil, capacity cap, no early win, dawn scoring, and no-flames priority on the terminal tick.
