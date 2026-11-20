@@ -25,5 +25,8 @@ Soak
 - Result: 10 nights, 0 crashes, all ten runs ended lost; RSS 44.2 MB after runtime warm-up and first night load, 48.5 MB after final reset (1.10x, within 1.2x), 0.77 s.
 - The soak process performs a documented 1,200-tick runtime warm-up before the measured nights so one-time JIT/runtime allocation is included in the baseline.
 
-Scope note
-- The web release is packaged as a local Node static server and production bundle. GitHub tag/release publication and the requested MP4 demo require GitHub credentials and an MP4 encoder/recording tool not available in this environment; no remote release was published by these local checks.
+Release and demo
+- Public repository: https://github.com/daokiencuong/K5-L3A-DAY12-DaoKienCuong-2A202603396-AI-SDLC
+- GitHub Release v1.0.0: https://github.com/daokiencuong/K5-L3A-DAY12-DaoKienCuong-2A202603396-AI-SDLC/releases/tag/v1.0.0
+- Release assets: `dao-den-long-v1.0.0.zip`, `bench.json`, and `soak.json`.
+- The requested MP4 demo is not present: no MP4 encoder or screen-recording runtime was available in this environment.
