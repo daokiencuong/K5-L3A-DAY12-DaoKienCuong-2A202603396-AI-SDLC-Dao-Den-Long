@@ -1,0 +1,10 @@
+Phase 2 verification evidence
+=============================
+
+Contract checks: passed via scripts/verify_phase2.js
+Production bundle: passed via Vite 7.3.8 (34 modules; JS 759.43 kB minified, 208.08 kB gzip)
+Full headless run: Night 3, 21,600 ticks, deterministic empty-enemy performance scenario; 0.117 s on this machine (limit 30 s).
+Browser 1280x720 average FPS: not measured in this environment.
+
+The simulation scenarios cover map counts, camera-relative movement, standardized deposits and score, pulse scoring, victory bonus, pause freeze/resume, dash, charm, mote respawn, drifter steal/drop, first shade wave, scheduled wind, and fall damage.
+Night 3 21,600 ticks: 0.110 s (limit 30 s)
