@@ -6,7 +6,7 @@ const fresh=(night=1,scenario={})=>new Simulation(31,scenario,night);
 const event=(s,name)=>s.events.find(e=>e.name===name);
 const lamp=(id,pos,lit=false,fuel=0,extra={})=>({id,pos,lit,fuel,ever_lit:lit,...extra});
 const contract=JSON.parse(fs.readFileSync(new URL('../game.contract.json',import.meta.url),'utf8'));
-assert.equal(contract.contract_version,'1.2');for(const[k,v]of Object.entries(TUNING))assert.deepEqual(contract.tuning[k],v,`tuning ${k}`);
+assert.equal(contract.contract_version,'1.3');for(const[k,v]of Object.entries(TUNING))assert.deepEqual(contract.tuning[k],v,`tuning ${k}`);
 assert.deepEqual([TUNING.night1_duration_s,TUNING.night2_duration_s,TUNING.night3_duration_s],[240,270,300]);
 for(const [n,count,required]of [[1,5,3],[2,6,4],[3,7,5]]){const s=fresh(n);assert.equal(s.lanterns.length,count);assert.equal(Math.ceil(TUNING.win_ratio*count),required)}
 

@@ -1,0 +1,29 @@
+Phase 4 verification evidence
+Date: 2026-11-20
+Contract: 1.3 (gameplay snapshot schema: 1.2)
+
+Build
+- Command: node node_modules/vite/bin/vite.js build
+- Result: PASS, Vite 7.3.8; React and Three.js split into production chunks.
+
+Automated checks
+- scripts/verify_phase4.js: PASS (v1.3 contract, fixed benchmark fixture/simulation, metrics, input remapping, leaderboard persistence/export)
+- scripts/verify_phase3.js: PASS
+- scripts/verify_phase2.js: PASS
+- scripts/verify_phase1_regression.js: PASS
+
+Benchmark
+- Command: node scripts/bench.js --seed 42 --duration 30 --out bench.json
+- Fixture: 200 Shades, 100 motes, three lit lamps; window 1280x720; 3-second warm-up.
+- Result from bench.json: 3,589 frames; average 119.63 FPS; p1 low 40.26 FPS; frame p95 17.2 ms; load to first scene frame 2,641 ms.
+- VSync disabled with Chrome launch flags. Renderer: Three.js r180, WebGL ANGLE / Intel UHD / Direct3D 11. OS: Windows_NT 10.0.26200 x64.
+- peak_mem_mb is null because the browser benchmark page cannot reliably read the Chrome process RSS from the browser sandbox.
+- This is a developer-machine reference result. The instructor's specified machine determines the final performance threshold result.
+
+Soak
+- Command: node --expose-gc scripts/soak.js --seed 7 --nights 10 --out soak.json
+- Result: 10 nights, 0 crashes, all ten runs ended lost; RSS 44.2 MB after runtime warm-up and first night load, 48.5 MB after final reset (1.10x, within 1.2x), 0.77 s.
+- The soak process performs a documented 1,200-tick runtime warm-up before the measured nights so one-time JIT/runtime allocation is included in the baseline.
+
+Scope note
+- The web release is packaged as a local Node static server and production bundle. GitHub tag/release publication and the requested MP4 demo require GitHub credentials and an MP4 encoder/recording tool not available in this environment; no remote release was published by these local checks.

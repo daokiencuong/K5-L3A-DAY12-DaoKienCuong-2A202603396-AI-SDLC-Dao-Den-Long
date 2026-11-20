@@ -5,3 +5,5 @@ venv/
 .DS_Store
 node_modules/
 dist/
+data/leaderboard.json
+data/leaderboard.json.tmp

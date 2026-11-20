@@ -1,9 +1,11 @@
 {
-  "contract_version": "1.2",
+  "contract_version": "1.3",
   "team": "2A202603396-DaoKienCuong",
   "build_cmd": "npm install && npm run build",
-  "run_cmd": "npm run dev",
+  "run_cmd": "node server.js",
   "headless_cmd": "node src/headless.js --seed 42 --night 1 --ticks 21600 --out run.jsonl",
+  "bench_cmd": "node scripts/bench.js",
+  "soak_cmd": "node --expose-gc scripts/soak.js",
   "tick_rate": 60,
   "units": {"distance": "m", "time": "s", "up_axis": "Y"},
   "tuning": {
@@ -75,5 +77,6 @@
     "lantern_lit_adds": ["relight"],
     "fuel_drain_interval_ticks": 60
   },
-  "notes": "Fuel and dawn rules supersede Phase 2 early-lighting and scoring rules. See docs/ADR-003-lantern-fuel.md and docs/CHANGELOG-PHASE3.md."
+  "leaderboard": {"entries_file":"data/leaderboard.json","export_cmd":"node server.js --export-leaderboard out.json","limit":10,"sort":["score desc","achieved_at asc"]},
+  "notes": "Gameplay snapshot and rules remain v1.2; release, benchmark, soak, leaderboard and accessibility additions are contract v1.3."
 }

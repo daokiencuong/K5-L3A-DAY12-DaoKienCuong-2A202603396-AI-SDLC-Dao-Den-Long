@@ -1,24 +1,25 @@
 {
-    "name":  "dao-den-long",
-    "private":  true,
-  "version":  "1.2.0",
-    "type":  "module",
-    "engines":  {
-                    "node":  "\u003e=20.19.0"
-                },
-    "scripts":  {
-                    "dev":  "vite --host 0.0.0.0",
-                    "build":  "vite build",
-                    "verify":  "node scripts/verify_phase3.js \u0026\u0026 node scripts/verify_phase2.js \u0026\u0026 node scripts/verify_phase1_regression.js",
-                    "headless":  "node src/headless.js"
-                },
-    "dependencies":  {
-                         "react":  "^19.1.1",
-                         "react-dom":  "^19.1.1",
-                         "three":  "^0.180.0"
-                     },
-    "devDependencies":  {
-                            "@vitejs/plugin-react":  "^5.0.4",
-                            "vite":  "^7.1.7"
-                        }
+  "name": "dao-den-long",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {"node": ">=20.19.0"},
+  "scripts": {
+    "dev": "node dev-server.js",
+    "build": "vite build",
+    "start": "node server.js",
+    "verify": "node scripts/verify_phase4.js && node scripts/verify_phase3.js && node scripts/verify_phase2.js && node scripts/verify_phase1_regression.js",
+    "headless": "node src/headless.js",
+    "bench": "node scripts/bench.js",
+    "soak": "node --expose-gc scripts/soak.js"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.4",
+    "vite": "^7.1.7"
+  }
 }
