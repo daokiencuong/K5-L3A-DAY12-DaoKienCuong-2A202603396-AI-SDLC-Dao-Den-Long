@@ -1,45 +1,49 @@
 # Đảo Đèn Lồng · Phase 1
 
-Game phiêu lưu 3D low-poly trên đảo tròn giữa biển mây. Mây nhặt đom đóm, mang tới năm đèn lớn, né Bóng Mực và dùng ánh sáng để làm chúng choáng. Chạy trực tiếp trên macOS, Linux hoặc Windows với Python 3.9+ và trình duyệt hỗ trợ WebGL; không cần cài package.
+Game 3D góc nhìn sau lưng Mây, giao diện **React**, cảnh dựng bằng **Three.js**, chạy trên **Node.js**. Vite chỉ phục vụ build và development server. Đêm nay sương đen phủ đảo: hãy thu thập đom đóm, thắp năm đèn lớn, dùng ánh sáng đẩy lùi Bóng Mực và giữ lại đèn sinh mệnh.
 
 ## Cài đặt và chạy
 
+Cần Node.js 20.19 trở lên.
+
 ```sh
-python -m compileall -q src
-python -m http.server 8000
+npm install
+npm run dev
 ```
 
-Mở `http://localhost:8000`. Dừng máy chủ bằng Ctrl+C. Build command chỉ kiểm tra cú pháp mô phỏng; game browser là HTML/JavaScript tĩnh.
+Mở URL Vite hiện trong terminal (mặc định `http://localhost:5173`). Để tạo bản build tĩnh, chạy thêm `npm run build`.
 
 ## Điều khiển
 
-- `W A S D`: đi theo góc camera; camera bám sau Mây. Kéo chuột ngang để xoay camera.
+- `W A S D`: đi theo hướng camera; `W` tiến, `S` lùi, `A` trái, `D` phải.
+- Kéo chuột ngang để xoay camera; lăn chuột để chỉnh khoảng cách.
 - `Space`: nhảy.
 - `E`: nạp đom đóm vào đèn gần nhất trong 3 m.
-- `Q`: tỏa sáng, tiêu hao 1 đom đóm; Bóng Mực cách tối đa 8 m bị choáng 2,5 giây và đẩy lùi 3 m. Hồi chiêu 4 giây.
+- `F`: tỏa sáng, tiêu hao 1 đom đóm; Bóng Mực cách tối đa 8 m bị choáng 2,5 giây và đẩy lùi 3 m. Hồi chiêu 4 giây.
 
-Mây di chuyển 6 m/s, mang tối đa 5 đom đóm, có 3 đèn sinh mệnh. Mỗi đèn cần 3 đom đóm. Bóng Mực đi 2,4 m/s, chạm trong 1 m làm mất một đèn sinh mệnh; Mây được miễn nhiễm va chạm 1,5 giây. Đêm dài 300 giây. Đảo không phạt khi ra khỏi rìa; Mây bị giữ trong bán kính 29,5 m.
+Mây đi 6 m/s, mang tối đa 5 đom đóm và có 3 đèn sinh mệnh. Mỗi đèn cần 3 đom đóm. Bóng Mực đi 2,4 m/s, chạm trong 1 m làm mất một đèn sinh mệnh; Mây được miễn nhiễm va chạm 1,5 giây sau đó. Đêm dài 300 giây. Đảo giữ Mây trong bán kính 29,5 m.
 
 ## Điểm
 
-Mỗi đom đóm nhặt được: 10; mỗi đèn thắp sáng: 100; mỗi Bóng Mực bị choáng: 15. Khi thắng, cộng thêm 1 điểm cho mỗi giây còn lại và 25 điểm cho mỗi đèn sinh mệnh còn lại. Thua không có điểm thưởng cuối màn.
+Mỗi đom đóm nhặt được: 10; mỗi đèn thắp sáng: 100; mỗi Bóng Mực bị choáng: 15. Khi thắng, cộng thêm 1 điểm cho mỗi giây còn lại và 25 điểm cho mỗi đèn sinh mệnh còn lại.
 
 ## Headless và kiểm chứng
 
-Contract đầy đủ ở [`game.contract.json`](game.contract.json). Headless dùng Python standard library, chạy 60 tick/giây, không cửa sổ/GPU:
+Tuning nằm trong [`game.contract.json`](game.contract.json). Lõi mô phỏng JavaScript dùng chung cho browser và Node, chạy 60 tick/giây, không cần cửa sổ hay GPU:
 
 ```sh
-python src/headless.py --seed 23 --night 1 --scenario docs/proof/scenario-smoke.json --inputs docs/proof/inputs-smoke.json --ticks 600 --snapshot-every 1 --out run.jsonl
-python scripts/verify_phase1.py
+node src/headless.js --seed 23 --night 1 --scenario docs/proof/scenario-smoke.json --inputs docs/proof/inputs-smoke.json --ticks 600 --snapshot-every 1 --out run.jsonl
+npm run verify
 ```
 
-Inputs, scenario, snapshot/event/end tuân theo Test Contract v1.0. Lỗi định dạng scenario/inputs trả mã 2. Chạy cùng seed và tệp đầu vào tạo cùng JSONL. Headless mô phỏng là nguồn chuẩn cho chấm tự động; phần trình bày browser không làm thay đổi đầu ra headless.
+Headless tuân theo Test Contract v1.0: scenario/inputs, sự kiện/snapshot/end JSONL, mã thoát 2 khi dữ liệu scenario/inputs sai và đầu ra tất định theo seed. Bằng chứng có thể tái tạo tại `docs/proof/`.
 
 ## Sáng tạo của tôi
 
-- Dựng cảnh 3D low-poly bằng WebGL thuần: đảo xanh tối, sương đêm, đèn vàng, Mây đội nón lá và Bóng Mực tím đen. Không tải asset ngoài.
-- Chứng cứ lõi: `docs/proof/phase1-smoke.jsonl` ghi pulse làm choáng S1, nạp và thắp L1, thắng ở tick 3; `docs/proof/verification.txt` ghi kiểm tra nhặt, va chạm, JSON sai mã 2 và so sánh tất định. Các bản dựng scenario không cộng điểm cho đèn đã thắp sẵn.
+- Cảnh đảo 3D low-poly bằng Three.js, sương, cây cỏ, ánh sáng đèn màu hổ phách và nhân vật Mây đội nón lá.
+- HUD phong cách MOBA giả tưởng: mục tiêu ở đỉnh màn hình, minimap, thanh sinh mệnh/ánh sáng, điểm và ô kỹ năng, trong đó **F** là kỹ năng tỏa sáng.
+- Bằng chứng giao diện: [ảnh Chrome 1600×900](docs/proof/react-three-ui.png). Bằng chứng lõi: `docs/proof/phase1-smoke.jsonl` thể hiện Bóng Mực bị làm choáng, đèn được nạp/thắp và màn thắng. `npm run verify` kiểm tra nhặt, va chạm, bốn hướng WASD, JSON lỗi, tính tất định và đồng bộ tuning.
 
 ## Ghi chép
 
-Giả định, tiêu chí nghiệm thu và nhật ký AI Phase 1: [`docs/PHASE1-NOTES.md`](docs/PHASE1-NOTES.md). Harness cho coding agent: [`AGENTS.md`](AGENTS.md). Credits và license: [`CREDITS.md`](CREDITS.md), [`LICENSE`](LICENSE).
+Giả định Phase 1, phạm vi và ghi chú cập nhật renderer: [`docs/PHASE1-NOTES.md`](docs/PHASE1-NOTES.md). Harness coding agent: [`AGENTS.md`](AGENTS.md). Credits/license: [`CREDITS.md`](CREDITS.md), [`LICENSE`](LICENSE).

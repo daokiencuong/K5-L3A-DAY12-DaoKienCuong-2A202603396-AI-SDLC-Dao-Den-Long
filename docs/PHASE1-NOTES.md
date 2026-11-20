@@ -6,21 +6,22 @@
 - Mây có 3 đèn sinh mệnh. Chạm Bóng Mực mất một đèn; bất tử 1,5 giây sau va chạm. Rơi không bị phạt.
 - Tỏa sáng tiêu hao một đom đóm, làm choáng và đẩy Bóng Mực trong bán kính 8 m; hồi chiêu 4 giây.
 - Đêm dài 300 giây. Chạm đèn trong 3 m nạp số đom đóm đang mang vào đèn gần nhất.
-- Màn chơi headless dùng cùng đơn vị mét và hệ trục XZ của contract. Browser là bản trình bày tương tác riêng; các thực thể trang trí không được đưa vào mô phỏng headless.
+- Màn headless và trình duyệt dùng chung `src/sim.js`, đơn vị mét và hệ trục XZ của contract. Cảnh/hiệu ứng Three.js chỉ để hiển thị.
 
 ## Tiêu chí nghiệm thu Phase 1
 
 | Yêu cầu | Kiểm chứng | Bằng chứng |
 |---|---|---|
-| 5 đèn, 60 Hz, snapshot tick 0 và end JSONL | `src/headless.py` với scenario deterministic | `docs/proof/phase1-smoke.jsonl` |
+| 5 đèn, 60 Hz, snapshot tick 0 và end JSONL | `src/headless.js` với scenario deterministic | `docs/proof/phase1-smoke.jsonl` |
 | Nhặt đom đóm, nạp và thắp đèn | Scenario tương tác có sẵn trong `docs/proof/` | `docs/proof/phase1-smoke.jsonl` |
 | Bóng Mực đuổi, chạm gây mất lửa | Đầu ra scenario chạy lại được | Còn cần kiểm tra hình ảnh khi mở browser |
 | Pulse tốn sáng, đẩy/choáng bóng | Sự kiện pulse và snapshot scenario | `docs/proof/phase1-smoke.jsonl` |
 | Determinism và định dạng JSON | Chạy cùng lệnh hai lần, so byte | `docs/proof/verification.txt` |
-| HUD, chơi lại, điều khiển, không bạo lực | Mở trang và thao tác thủ công | Chưa có ảnh chụp màn hình trong môi trường này |
+| HUD, chơi lại, điều khiển, không bạo lực | React build + Chrome screenshot | `docs/proof/react-three-ui.png`; WASD mapping covered by `npm run verify` |
 
 ## Nhật ký AI và retro
 
-- Dùng Codex để chuyển contract thành mô phỏng headless, trang web Canvas phong cách minh họa và tài liệu bàn giao. Không có API/token meter hiển thị cho phiên này; token/chi phí chính xác không đo được, không tự ước lượng thành số liệu giả.
-- Tiết kiệm phạm vi bằng Python standard library cho build/headless và một file browser JS, không thêm package hoặc asset ngoài.
-- Rà soát ban đầu bắt được lỗi cú pháp trong chọn đèn an toàn trước khi chạy; đã sửa rồi mới tạo bằng chứng. Cần người dùng mở game trong browser để xác nhận hình ảnh/điều khiển trực quan.
+- Sau phản hồi của người dùng, nâng cấp renderer từ WebGL viết tay sang Three.js, chuyển headless sang Node.js và làm lại HUD theo phong cách MOBA. Chia sẻ lõi `src/sim.js` giữ quy tắc headless nhất quán giữa hai chế độ.
+- Điều khiển bàn phím dùng trục camera riêng: W tiến, S lùi, A trái, D phải; F kích hoạt pulse ánh sáng. Trục được kiểm chứng bằng bài kiểm tra bốn hướng.
+- Không có API/token meter hiển thị cho phiên này; token/chi phí chính xác không đo được, không tự ước lượng thành số liệu giả. Không thêm asset hình ảnh/âm thanh bên ngoài.
+- Tag `phase-1` bản cũ đã được gỡ theo yêu cầu sau khi đổi stack; bản hiện tại ở nhánh main. Bằng chứng headless được tái tạo bằng Node.js và giao diện được chụp từ Chrome.

@@ -1,9 +1,9 @@
 {
   "contract_version": "1.0",
   "team": "2A202603396-DaoKienCuong",
-  "build_cmd": "python -m compileall -q src",
-  "run_cmd": "python -m http.server 8000",
-  "headless_cmd": "python src/headless.py",
+  "build_cmd": "npm install && npm run build",
+  "run_cmd": "npm run dev",
+  "headless_cmd": "node src/headless.js",
   "tuning": {
     "player_speed": 6.0,
     "carry_capacity": 5,

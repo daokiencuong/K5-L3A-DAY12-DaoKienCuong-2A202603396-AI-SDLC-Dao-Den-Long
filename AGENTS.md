@@ -1,8 +1,9 @@
 # Project instructions
 
-- Read `game.contract.json` and keep every tuning value synchronized with `src/headless.py`.
-- Build/check syntax: `python -m compileall -q src`.
-- Headless command: `python src/headless.py --seed 1 --night 1 --ticks 120 --out output.jsonl`.
-- Keep headless deterministic, fixed at 60 ticks/second, and emit only contract JSONL on the output file.
-- Run the browser build locally with `python -m http.server 8000`, then open `http://localhost:8000`.
-- Do not invent successful evidence. Regenerate proof files by running the documented commands.
+- The game uses React UI, Three.js rendering, and a shared deterministic JavaScript simulation in `src/sim.js`.
+- Install dependencies with `npm install`; build with `npm run build`.
+- Headless contract: `node src/headless.js --seed 1 --night 1 --ticks 120 --out output.jsonl`.
+- Run `npm run verify` after changing simulation or contract behavior.
+- Keep tuning values synchronized across `src/sim.js` and `game.contract.json`.
+- Controls: WASD follows the camera, Space jumps, E lights lanterns, F pulses light.
+- Preserve the v1.0 JSONL protocol, 60 Hz ticks, stable seeded output, and scenario semantics.
